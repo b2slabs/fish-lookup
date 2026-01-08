@@ -1,7 +1,7 @@
 name: Fetch products.json hourly (multiple URLs)
 
 permissions:
-  conteints: write
+  contents: write
 
 on:
   # schedule:
