@@ -1,0 +1,53 @@
+name: Fetch products.json hourly (multiple URLs)
+
+on:
+  schedule:
+    - cron: "0 * * * *"   # every hour
+  workflow_dispatch:
+
+env:
+  URLS: |
+    https://monsteraquariumon9.com
+    https://ckfishworld.com
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Prepare timestamp
+        run: |
+          echo "DATE=$(date -u +'%Y-%m-%d_%H')" >> $GITHUB_ENV
+
+      - name: Download products.json for all URLs
+        run: |
+          mkdir -p json
+
+          while read -r URL; do
+            [ -z "$URL" ] && continue
+
+            SAFE_URL=$(echo "$URL" | sed 's~https\?://~~' | tr '/' '_')
+            mkdir -p "json/$SAFE_URL"
+
+            echo "Fetching $URL"
+            curl -sS \
+              "$URL/products.json?limit=10000" \
+              -o "json/$SAFE_URL/${DATE}.json"
+
+          done <<< "${URLS}"
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add json/
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Hourly products.json snapshots (${DATE})"
+            git push
+          fi
