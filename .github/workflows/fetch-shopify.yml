@@ -4,8 +4,8 @@ permissions:
   contents: write
 
 on:
-  # schedule:
-  #   - cron: "0 * * * *"   # every hour
+  schedule:
+    - cron: "0 * * * *"   # every hour
   push:
     branches:
       - main
@@ -14,8 +14,25 @@ on:
 
 env:
   URLS: |
+    https://aquaticarts.com
     https://monsteraquariumon9.com
     https://ckfishworld.com
+    https://aquahuna.com
+    https://nationwideaquaticsusa.com
+    https://enchantedgrow.com
+    https://shrimpybusiness.com
+    https://flipaquatics.com
+    https://aquariumfish.com
+    https://imperialtropicals.com
+    https://dakuaquatics.com
+    https://buceplant.com
+    https://dustinsfishtanks.com
+    https://www.aquariumcoop.com
+    https://aquariumplantsfactory.com
+    https://shop.glassaqua.com
+    https://globalexoticquatics.com
+    https://aquaticsforfun.com
+    
 jobs:
   fetch:
     runs-on: ubuntu-latest
