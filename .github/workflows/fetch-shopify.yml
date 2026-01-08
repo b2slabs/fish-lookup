@@ -1,8 +1,11 @@
 name: Fetch products.json hourly (multiple URLs)
 
 on:
-  schedule:
-    - cron: "0 * * * *"   # every hour
+  # schedule:
+  #   - cron: "0 * * * *"   # every hour
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 env:
