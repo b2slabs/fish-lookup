@@ -5,7 +5,8 @@ permissions:
 
 on:
   schedule:
-    - cron: "0 * * * *"   # every hour
+    # - cron: "0 * * * *"   # every hour
+    - cron: "0 0 * * *"   # every day at 00:00 UTC
   push:
     branches:
       - main
@@ -27,12 +28,12 @@ env:
     https://dakuaquatics.com
     https://buceplant.com
     https://dustinsfishtanks.com
-    https://www.aquariumcoop.com
+    https://aquariumcoop.com
     https://aquariumplantsfactory.com
     https://shop.glassaqua.com
     https://globalexoticquatics.com
     https://aquaticsforfun.com
-    
+
 jobs:
   fetch:
     runs-on: ubuntu-latest
@@ -53,12 +54,12 @@ jobs:
             [ -z "$URL" ] && continue
 
             SAFE_URL=$(echo "$URL" | sed 's~https\?://~~' | tr '/' '_')
-            mkdir -p "json/$SAFE_URL"
+            mkdir -p "jsons/$SAFE_URL"
 
             echo "Fetching $URL"
             curl -sS \
               "$URL/products.json?limit=10000" \
-              -o "json/$SAFE_URL/${DATE}.json"
+              -o "jsons/$SAFE_URL/${DATE}.json"
 
           done <<< "${URLS}"
 
@@ -67,11 +68,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add json/
+          git add jsons/
 
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Hourly products.json snapshots (${DATE})"
+            git commit -m "Daily products.json snapshots (${DATE})"
             git push
           fi
