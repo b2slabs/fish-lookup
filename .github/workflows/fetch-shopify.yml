@@ -4,13 +4,13 @@ permissions:
   contents: write
 
 on:
-  schedule:
-    # - cron: "0 * * * *"   # every hour
-    - cron: "0 0 * * *"   # every day at 00:00 UTC
-  push:
-    branches:
-      - main
-      - database
+#   schedule:
+#     # - cron: "0 * * * *"   # every hour
+#     - cron: "0 0 * * *"   # every day at 00:00 UTC
+#   push:
+#     branches:
+#       - main
+#       - database
   workflow_dispatch:
 
 env:
