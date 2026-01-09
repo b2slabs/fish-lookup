@@ -1,0 +1,103 @@
+name: Fetch products.json hourly (multiple URLs)
+
+permissions:
+  contents: write
+
+on:
+  schedule:
+    # - cron: "0 * * * *"   # every hour
+    - cron: "0 0 * * *"   # every day at 00:00 UTC
+  push:
+    branches:
+      - main
+      - database
+  workflow_dispatch:
+
+env:
+  URLS: |
+    https://aquaticarts.com
+    https://monsteraquariumon9.com
+    https://ckfishworld.com
+    https://aquahuna.com
+    https://nationwideaquaticsusa.com
+    https://enchantedgrow.com
+    https://shrimpybusiness.com
+    https://flipaquatics.com
+    https://aquariumfish.com
+    https://imperialtropicals.com
+    https://dakuaquatics.com
+    https://buceplant.com
+    https://dustinsfishtanks.com
+    https://aquariumcoop.com
+    https://aquariumplantsfactory.com
+    https://shop.glassaqua.com
+    https://globalexoticquatics.com
+    https://aquaticsforfun.com
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Prepare timestamp
+        run: |
+          echo "DATE=$(date -u +'%Y-%m-%d_%H')" >> $GITHUB_ENV
+
+      - name: Download products.json for all URLs (hash + diff)
+        run: |
+          set -e
+
+          mkdir -p jsons
+
+          while read -r URL; do
+            [ -z "$URL" ] && continue
+
+            SAFE_URL=$(echo "$URL" | sed 's~https\?://~~' | tr '/' '_')
+            TARGET_DIR="jsons/$SAFE_URL"
+            mkdir -p "$TARGET_DIR"
+
+            TMP_FILE="$TARGET_DIR/tmp.json"
+            LATEST_FILE="$TARGET_DIR/latest.json"
+            HASH_FILE="$TARGET_DIR/latest.sha256"
+
+            echo "Fetching $URL"
+            curl -fsSL "$URL/products.json?limit=10000" -o "$TMP_FILE" || {
+              echo "Failed to fetch $URL"
+              rm -f "$TMP_FILE"
+              continue
+            }
+
+            NEW_HASH=$(sha256sum "$TMP_FILE" | awk '{print $1}')
+
+            if [ -f "$HASH_FILE" ] && grep -q "$NEW_HASH" "$HASH_FILE"; then
+              echo "No change for $URL"
+              rm -f "$TMP_FILE"
+              continue
+            fi
+
+            SNAPSHOT_FILE="$TARGET_DIR/${DATE}.json"
+
+            mv "$TMP_FILE" "$SNAPSHOT_FILE"
+            cp "$SNAPSHOT_FILE" "$LATEST_FILE"
+            echo "$NEW_HASH" > "$HASH_FILE"
+
+            echo "Updated snapshot for $URL"
+
+          done <<< "${URLS}"
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add jsons/
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Daily products.json snapshots (${DATE})"
+            git push
+          fi  

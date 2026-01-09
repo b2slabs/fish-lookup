@@ -4,3 +4,5 @@ TODO:
 - petzone
 - aquaimports
 - redfishbluefish
+
+Optimize for git diffs
