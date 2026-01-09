@@ -4,9 +4,9 @@ permissions:
   contents: write
 
 on:
-#   schedule:
-#     # - cron: "0 * * * *"   # every hour
-#     - cron: "0 0 * * *"   # every day at 00:00 UTC
+  schedule:
+    # - cron: "0 * * * *"   # every hour
+    - cron: "30 0 * * *"   # every day at 00:00 UTC
 #   push:
 #     branches:
 #       - main
