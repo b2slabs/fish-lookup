@@ -56,7 +56,7 @@ jobs:
             [ -z "$URL" ] && continue
 
             SAFE_URL=$(echo "$URL" | sed 's~https\?://~~' | tr '/' '_')
-            TARGET_DIR="jsons_hashed/$SAFE_URL"/
+            TARGET_DIR="jsons_hashed/$SAFE_URL/"
             mkdir -p "$TARGET_DIR"
 
             TMP_FILE="$TARGET_DIR/tmp.json"
